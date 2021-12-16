@@ -1,0 +1,6 @@
+elixir 1.11.4-otp-23
+erlang 23.2.3
+shellcheck 0.7.2
+shfmt 3.4.0
+action-validator 0.1.0
+rust 1.56.1
