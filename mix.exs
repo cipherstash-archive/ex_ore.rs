@@ -23,7 +23,7 @@ defmodule ExOreRs.MixProject do
     [
       {:ex_doc, "~> 0.23", only: :dev, runtime: false},
       {:stream_data, "~> 0.5.0", only: :test},
-      {:rustler, "~> 0.22.2"},
+      {:rustler, "~> 0.23.0"},
     ]
   end
 
