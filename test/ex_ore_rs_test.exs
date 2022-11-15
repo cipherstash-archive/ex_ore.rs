@@ -5,18 +5,17 @@ defmodule ExOreRsTest do
 
   @prf_key :crypto.strong_rand_bytes(16)
   @prp_key :crypto.strong_rand_bytes(16)
-  @seed :crypto.strong_rand_bytes(8)
 
   test "that plaintexts encrypted under different PRF keys are not comparable" do
-    ct_a = ExOreRs.encrypt(1000, "abcdefghijklmnop", @prp_key, @seed)
-    ct_b = ExOreRs.encrypt(1000, "1234567890abcdef", @prp_key, @seed)
+    ct_a = ExOreRs.encrypt(1000, "abcdefghijklmnop", @prp_key)
+    ct_b = ExOreRs.encrypt(1000, "1234567890abcdef", @prp_key)
 
     refute 0 == ExOreRs.compare(ct_a, ct_b)
   end
 
   test "that plaintexts encrypted under different PRP keys are not comparable" do
-    ct_a = ExOreRs.encrypt(1000, @prf_key, "abcdefghijklmnop", @seed)
-    ct_b = ExOreRs.encrypt(1000, @prf_key, "1234567890abcdef", @seed)
+    ct_a = ExOreRs.encrypt(1000, @prf_key, "abcdefghijklmnop")
+    ct_b = ExOreRs.encrypt(1000, @prf_key, "1234567890abcdef")
 
     refute 0 == ExOreRs.compare(ct_a, ct_b)
   end
@@ -24,13 +23,13 @@ defmodule ExOreRsTest do
   describe "PRF key" do
     test "that encryption errors when too short" do
       assert_raise ArgumentError, fn ->
-        ExOreRs.encrypt(1, "short", @prp_key, @seed)
+        ExOreRs.encrypt(1, "short", @prp_key)
       end
     end
 
     test "that encryption errors when too long" do
       assert_raise ArgumentError, fn ->
-        ExOreRs.encrypt(1, "this key is far too long", @prp_key, @seed)
+        ExOreRs.encrypt(1, "this key is far too long", @prp_key)
       end
     end
   end
@@ -38,13 +37,13 @@ defmodule ExOreRsTest do
   describe "PRP key" do
     test "that encryption errors when too short" do
       assert_raise ArgumentError, fn ->
-        ExOreRs.encrypt(1, @prf_key, "short", @seed)
+        ExOreRs.encrypt(1, @prf_key, "short")
       end
     end
 
     test "that encryption errors when too long" do
       assert_raise ArgumentError, fn ->
-        ExOreRs.encrypt(1, @prf_key, "this key is also far too long", @seed)
+        ExOreRs.encrypt(1, @prf_key, "this key is also far too long")
       end
     end
   end
@@ -53,26 +52,26 @@ defmodule ExOreRsTest do
     test "32-bit plaintext out of range returns an error" do
       pt = :math.pow(2, 32) |> trunc
       assert_raise ArgumentError, fn ->
-        ExOreRs.encrypt(pt, @prf_key, @prp_key, @seed)
+        ExOreRs.encrypt(pt, @prf_key, @prp_key)
       end
     end
 
     test "64-bit plaintext out of range returns an error" do
       pt = :math.pow(2, 64) |> trunc
       assert_raise ArgumentError, fn ->
-        ExOreRs.encrypt(pt, @prf_key, @prp_key, @seed, 64)
+        ExOreRs.encrypt(pt, @prf_key, @prp_key, 64)
       end
     end
 
     test "n=65 raises argument error" do
       assert_raise ArgumentError, fn ->
-        ExOreRs.encrypt(1, @prf_key, @prp_key, @seed, 65, 8)
+        ExOreRs.encrypt(1, @prf_key, @prp_key, 65, 8)
       end
     end
 
     test "n=64, k=7 raises argument error" do
       assert_raise ArgumentError, fn ->
-        ExOreRs.encrypt(1, @prf_key, @prp_key, @seed, 64, 7)
+        ExOreRs.encrypt(1, @prf_key, @prp_key, 64, 7)
       end
     end
   end
@@ -80,7 +79,7 @@ defmodule ExOreRsTest do
   describe "n=32, k=8 (defaults)" do
     property "identical plaintexts will compare as equal" do
       check all pt <- plain_text(), max_runs: 1000 do
-        ct = ExOreRs.encrypt(pt, @prf_key, @prp_key, @seed)
+        ct = ExOreRs.encrypt(pt, @prf_key, @prp_key)
         assert 0 == ExOreRs.compare(ct, ct)
       end
     end
@@ -89,8 +88,8 @@ defmodule ExOreRsTest do
       check all a <- plain_text(),
                 b <- plain_text(),
                 max_runs: 1000 do
-        ct_a = ExOreRs.encrypt(a, @prf_key, @prp_key, @seed)
-        ct_b = ExOreRs.encrypt(b, @prf_key, @prp_key, @seed)
+        ct_a = ExOreRs.encrypt(a, @prf_key, @prp_key)
+        ct_b = ExOreRs.encrypt(b, @prf_key, @prp_key)
 
         cond do
           a < b ->
@@ -107,8 +106,8 @@ defmodule ExOreRsTest do
 
     property "all numbers smaller than the maximum should compare as less-than" do
       check all a <- integer(0..(max(32) - 1)), max_runs: 1000 do
-        ct_a = ExOreRs.encrypt(a, @prf_key, @prp_key, @seed)
-        ct_b = ExOreRs.encrypt(max(32), @prf_key, @prp_key, @seed)
+        ct_a = ExOreRs.encrypt(a, @prf_key, @prp_key)
+        ct_b = ExOreRs.encrypt(max(32), @prf_key, @prp_key)
 
         assert -1 == ExOreRs.compare(ct_a, ct_b)
       end
@@ -118,8 +117,8 @@ defmodule ExOreRsTest do
       <<b::32>> = <<100, 75, 37, 11>>
 
       for <<a::32>> <- [<<100, 75, 37, 12>>, <<100, 75, 39, 11>>, <<100, 80, 37, 11>>, <<101, 75, 37, 11>>] do
-        ct_a = ExOreRs.encrypt(a, @prf_key, @prp_key, @seed)
-        ct_b = ExOreRs.encrypt(b, @prf_key, @prp_key, @seed)
+        ct_a = ExOreRs.encrypt(a, @prf_key, @prp_key)
+        ct_b = ExOreRs.encrypt(b, @prf_key, @prp_key)
 
         assert 1 == ExOreRs.compare(ct_a, ct_b)
       end
@@ -133,7 +132,7 @@ defmodule ExOreRsTest do
 
     property "identical plaintexts will compare as equal", %{n: n, k: k} do
       check all pt <- plain_text(), max_runs: 1000 do
-        ct = ExOreRs.encrypt(pt, @prf_key, @prp_key, @seed, n, k)
+        ct = ExOreRs.encrypt(pt, @prf_key, @prp_key, n, k)
         assert 0 == ExOreRs.compare(ct, ct, n, k)
       end
     end
@@ -142,8 +141,8 @@ defmodule ExOreRsTest do
       check all a <- plain_text(),
                 b <- plain_text(),
                 max_runs: 1000 do
-        ct_a = ExOreRs.encrypt(a, @prf_key, @prp_key, @seed, n, k)
-        ct_b = ExOreRs.encrypt(b, @prf_key, @prp_key, @seed, n, k)
+        ct_a = ExOreRs.encrypt(a, @prf_key, @prp_key, n, k)
+        ct_b = ExOreRs.encrypt(b, @prf_key, @prp_key, n, k)
 
         cond do
           a < b ->
@@ -160,8 +159,8 @@ defmodule ExOreRsTest do
 
     property "all numbers smaller than the maximum should compare as less-than", %{n: n, k: k} do
       check all a <- integer(0..(max(n) - 1)), max_runs: 1000 do
-        ct_a = ExOreRs.encrypt(a, @prf_key, @prp_key, @seed, n, k)
-        ct_b = ExOreRs.encrypt(max(n), @prf_key, @prp_key, @seed, n, k)
+        ct_a = ExOreRs.encrypt(a, @prf_key, @prp_key, n, k)
+        ct_b = ExOreRs.encrypt(max(n), @prf_key, @prp_key, n, k)
 
         assert -1 == ExOreRs.compare(ct_a, ct_b, n, k)
       end
@@ -181,8 +180,8 @@ defmodule ExOreRsTest do
         <<100, 75, 37, 11, 140, 19, 1, 223>>
       ] do
 
-        ct_a = ExOreRs.encrypt(a, @prf_key, @prp_key, @seed, n, k)
-        ct_b = ExOreRs.encrypt(b, @prf_key, @prp_key, @seed, n, k)
+        ct_a = ExOreRs.encrypt(a, @prf_key, @prp_key, n, k)
+        ct_b = ExOreRs.encrypt(b, @prf_key, @prp_key, n, k)
 
         assert 1 == ExOreRs.compare(ct_a, ct_b, n, k)
       end

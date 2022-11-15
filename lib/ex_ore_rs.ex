@@ -8,15 +8,15 @@ defmodule ExOreRs do
   # ORE Block size
   @default_k 8
 
-  def encrypt(plaintext, prf_key, prp_key, seed) do
-    encrypt(plaintext, prf_key, prp_key, seed, @default_n, @default_k)
+  def encrypt(plaintext, prf_key, prp_key) do
+    encrypt(plaintext, prf_key, prp_key, @default_n, @default_k)
   end
 
-  def encrypt(plaintext, prf_key, prp_key, seed, n) do
-    encrypt(plaintext, prf_key, prp_key, seed, n, @default_k)
+  def encrypt(plaintext, prf_key, prp_key, n) do
+    encrypt(plaintext, prf_key, prp_key, n, @default_k)
   end
 
-  def encrypt(plaintext, prf_key, prp_key, seed, n, k) do
+  def encrypt(plaintext, prf_key, prp_key, n, k) do
     if k != 8 do
       raise ArgumentError, "only k=8 supported by ExOreRs.encrypt (got #{k})"
     end
@@ -29,25 +29,21 @@ defmodule ExOreRs do
       raise ArgumentError, "PRP key must be 16 octets (got #{byte_size(prp_key)}"
     end
 
-    if byte_size(seed) != 8 do
-      raise ArgumentError, "PRP key must be 8 octets (got #{byte_size(seed)}"
-    end
-
     case n do
       32 ->
-        encrypt_32_8(plaintext, prf_key, prp_key, seed)
+        encrypt_32_8(plaintext, prf_key, prp_key)
       64 ->
-        encrypt_64_8(plaintext, prf_key, prp_key, seed)
+        encrypt_64_8(plaintext, prf_key, prp_key)
       _ ->
         raise ArgumentError, "only n={32,64} supported by ExOreRs.encrypt (got #{n})"
     end
   end
 
-  def encrypt_32_8(_plaintext, _prf_key, _prp_key, _seed) do
+  def encrypt_32_8(_plaintext, _prf_key, _prp_key) do
     raise "NIF encrypt_32_8/4 not loaded"
   end
 
-  def encrypt_64_8(_plaintext, _prf_key, _prp_key, _seed) do
+  def encrypt_64_8(_plaintext, _prf_key, _prp_key) do
     raise "NIF encrypt_64_8/4 not loaded"
   end
 

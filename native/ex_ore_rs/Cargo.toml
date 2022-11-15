@@ -11,4 +11,4 @@ crate-type = ["cdylib"]
 
 [dependencies]
 rustler = "0.22.2"
-ore-rs = { git = "https://github.com/cipherstash/ore.rs" }
+ore-rs = "0.4.0"
