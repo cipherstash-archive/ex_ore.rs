@@ -29,9 +29,9 @@ defmodule ExOreRs.MixProject do
 
   defp package do
     [
-      files: ["lib", "mix.exs", "native", "README.md", "priv"],
-      maintainers: ["Matt Palmer"],
-      licenses: ["Apache 2.0"],
+      files: ["lib", "mix.exs", "native", "README.md", "priv", "LICENSE"],
+      maintainers: ["Dan Draper", "James Sadler"],
+      licenses: ["LICENSE"],
       links: %{"GitHub" => "https://github.com/cipherstash/ex_ore.rs"}
     ]
   end
